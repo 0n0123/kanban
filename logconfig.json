@@ -1,0 +1,17 @@
+{
+    "appenders" : {
+        "out" : {
+            "type" : "stdout"
+        },
+        "app" : {
+            "type" : "file",
+            "filename" : "./logs/server.log"
+        }
+    },
+    "categories" : {
+        "default" : {
+            "appenders" : ["out", "app"],
+            "level" : "info"
+        }
+    }
+}
