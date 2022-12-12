@@ -2,10 +2,10 @@
   "name": "kanban",
   "version": "2.3.0",
   "description": "Task Kanban Application",
-  "main": "index.js",
+  "main": "index.mjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node.exe index.js",
+    "start": "node.exe index.mjs",
     "install-service": "winser -i -a --env NODE_ENV=production",
     "uninstall-service": "winser -r -x",
     "pack": "npm-pack-zip"
