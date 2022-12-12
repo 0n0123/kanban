@@ -13,6 +13,7 @@
     --color-white: hsl(60, 3%, 88%);
     --color-black: hsl(0, 0%, 45%);
     --color-text: hsl(0, 0%, 17%);
+    --color-text-blight: hsl(0, 0%, 94%);
     --color-link: hsl(194, 100%, 43%);
     --color-line: hsl(220, 1%, 66%);
     --color-shadow: rgba(0, 0, 0, .3);
@@ -20,6 +21,8 @@
     --color-focus: hsla(55, 100%, 46%, 0.6);
     --color-mask: rgba(255, 255, 255, .7);
     --color-comment: rgba(150, 150, 155, .5);
+    --color-menu-background: var(--color-background);
+    --color-menu-text: var(--color-text);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -37,6 +40,8 @@
         --color-text: hsl(60, 3%, 84%);
         --color-shadow: rgba(0, 0, 0, .4);
         --color-comment: rgba(100, 100, 110, .5);
+        --color-menu-background: hsl(0, 0%, 42%);
+        --color-menu-text: var(--color-text);
     }
 }
 
@@ -267,13 +272,37 @@ textarea:focus {
 }
 
 .menu {
-    color: var(--color-text);
-    background-color: var(--color-white);
+    color: var(--color-menu-text);
+    background-color: var(--color-menu-background);
     position: absolute;
-    width: 8em;
     visibility: hidden;
-    box-shadow: .1em .1em .2em -.1em rgba(0, 0, 0, 0.2);
+    box-shadow: .1em .1em .3em -.1em rgba(0, 0, 0, 0.4);
     user-select: none;
+}
+
+.menu-colors {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    flex-direction: row;
+    padding: .2rem;
+    gap: .2em;
+    flex-wrap: wrap;
+}
+
+.menu-color {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: underline;
+    font-size: 70%;
+    width: 2em;
+    height: 2em;
+    cursor: pointer;
+    transition: transform 70ms ease;
+}
+
+.menu-color:hover {
+    transform: translateY(-.1em);
 }
 
 .menu.show {
@@ -283,9 +312,8 @@ textarea:focus {
 .menu-item {
     position: relative;
     font-size: .8em;
-    height: 1.6em;
     list-style: none;
-    padding: .1em .2em;
+    padding: .2em;
     cursor: pointer;
     transition: padding 80ms ease;
     overflow: hidden;
@@ -299,7 +327,7 @@ textarea:focus {
 }
 
 .menu-item:hover {
-    padding-left: .5em;
+    padding-left: .4em;
 }
 
 .key-bind {
@@ -319,39 +347,47 @@ textarea:focus {
 
 .red {
     background-color: var(--color-red);
+    color: var(--color-text);
 }
 
 .orange {
     background-color: var(--color-orange);
+    color: var(--color-text);
 }
 
 .yellow {
     background-color: var(--color-yellow);
+    color: var(--color-text);
 }
 
 .green {
     background-color: var(--color-green);
+    color: var(--color-text);
 }
 
 .blue {
     background-color: var(--color-blue);
+    color: var(--color-text);
 }
 
 .indigo {
     background-color: var(--color-indigo);
+    color: var(--color-text);
 }
 
 .purple {
     background-color: var(--color-purple);
+    color: var(--color-text);
 }
 
 .white {
     background-color: var(--color-white);
+    color: var(--color-text);
 }
 
 .black {
     background-color: var(--color-black);
-    color: white;
+    color: var(--color-text-blight);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -379,12 +415,6 @@ textarea:focus {
     max-width: 100%;
 }
 
-@media (prefers-color-scheme: dark) {
-    #scroll>img {
-        filter: invert(100%);
-    }
-}
-
 #license {
     position: fixed;
     top: 0;
@@ -396,6 +426,13 @@ textarea:focus {
     display: block;
     max-width: 1.2em;
     min-width: 1.2em;
+}
+
+@media (prefers-color-scheme: dark) {
+    #scroll>img,
+    #license>img {
+        filter: invert(100%);
+    }
 }
 
 #status {

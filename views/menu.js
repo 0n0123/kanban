@@ -7,6 +7,7 @@ export const Menu = new class {
         this.elm = document.getElementById('menu');
 
         this.binds = Array.from(document.getElementsByClassName('menu-item'))
+            .concat(Array.from(document.getElementsByClassName('menu-color')))
             .map(m => ({
                 key: m.dataset.key,
                 func: _ => m.click()
@@ -16,7 +17,7 @@ export const Menu = new class {
             const focusedTaskIds = Task.getAllFocused().map(task => task.id);
             Emitter.changeColor(focusedTaskIds, e.currentTarget.dataset.color);
         };
-        this.elm.querySelectorAll('.menu-item.color').forEach(menu => menu.onclick = onColorMenuClick);
+        this.elm.querySelectorAll('.menu-color').forEach(menu => menu.onclick = onColorMenuClick);
 
         const onToFrontMenuClick = () => {
             const focusedTasks = Task.getAllFocused();

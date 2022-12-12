@@ -1,17 +1,22 @@
 {
-    "appenders" : {
-        "out" : {
-            "type" : "stdout"
+    "appenders": {
+        "out": {
+            "type": "stdout"
         },
-        "app" : {
-            "type" : "file",
-            "filename" : "./logs/server.log"
+        "app": {
+            "type": "dateFile",
+            "filename": "./logs/server.log",
+            "pattern": ".yyyy-MM-dd",
+            "numBackups": 60
         }
     },
-    "categories" : {
-        "default" : {
-            "appenders" : ["out", "app"],
-            "level" : "info"
+    "categories": {
+        "default": {
+            "appenders": [
+                "out",
+                "app"
+            ],
+            "level": "info"
         }
     }
 }

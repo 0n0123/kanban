@@ -1,12 +1,12 @@
-const express = require('express');
-const log4js = require('log4js');
-const fs = require('fs');
+import express from 'express';
+import log4js from 'log4js';
+import fs from 'node:fs';
 
-log4js.configure(__dirname + '/logconfig.json');
+log4js.configure('./logconfig.json');
 const logger = log4js.getLogger();
 logger.info(`Application is starting (NODE_ENV=${process.env.NODE_ENV})`);
 
-const settings = JSON.parse(fs.readFileSync(__dirname + '/config.json').toString());
+const settings = JSON.parse(fs.readFileSync('./config.json').toString());
 if (settings.port === undefined ||
     settings.port === '' ||
     isNaN(parseInt(settings.port))) {
@@ -14,7 +14,7 @@ if (settings.port === undefined ||
     process.exit();
 }
 
-const db = require('./db.js');
+import { db } from './db.mjs';
 const backupDir = settings.backup['dest.dir'];
 const backupInterval = settings.backup['interval.minutes'];
 if (backupDir.length > 0 && backupInterval > 0) {
@@ -25,21 +25,22 @@ if (backupDir.length > 0 && backupInterval > 0) {
 }
 
 const app = express();
-app.use('/', express.static(__dirname + '/views'));
-app.use('/marked', express.static(__dirname + '/node_modules/marked/lib'));
-app.use('/socket.io', express.static(__dirname + '/node_modules/socket.io/client-dist'));
-app.use('/viselect', express.static(__dirname + '/node_modules/@viselect/vanilla/lib'));
+app.use('/', express.static('./views'));
+app.use('/marked', express.static('./node_modules/marked/lib'));
+app.use('/socket.io', express.static('./node_modules/socket.io/client-dist'));
+app.use('/viselect', express.static('./node_modules/@viselect/vanilla/lib'));
 app.use(express.urlencoded({
     extended: true
 }));
 app.use(express.json());
-app.set('views', __dirname + '/views');
+app.set('views', './views');
 app.use(log4js.connectLogger(logger, {}));
 
-const http = require('http').createServer(app);
-const { Server } = require('socket.io');
+import http from 'node:http';
+http.createServer(app);
+import { Server } from 'socket.io';
 
-const server = http.listen(settings.port, () => logger.info('Listening to port: ' + settings.port));
+const server = http.createServer(app).listen(settings.port, () => logger.info('Listening to port: ' + settings.port));
 const io = new Server(server);
 
 /**
