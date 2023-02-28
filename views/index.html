@@ -17,9 +17,12 @@
         </div>
         <div id="container-stock"></div>
     </div>
-    <div id="status" class="disconnected"></div>
-    <div id="scroll"><img src="arrow.svg" alt="v"></div>
-    <div id="license"><img src="licenses.svg" alt="" title="3rd Party Licenses"></div>
+    <div id="status" class="background-icon">
+        <img id="status-online" src="online.svg" title="オンライン" />
+        <img id="status-offline" src="offline.svg" class="hidden" title="オフライン" />
+    </div>
+    <div id="scroll" class="background-icon"><img src="arrow.svg" alt="v"></div>
+    <div id="license" class="background-icon"><img src="licenses.svg" alt="" title="3rd Party Licenses"></div>
     <div id="tasks"></div>
     <ul id="menu" class="menu">
         <li class="menu-colors">
@@ -37,6 +40,7 @@
         <li id="menu-move" class="menu-item" data-key="KeyN"><img src="updown.svg" alt="">Move<span class="key-bind">N</span></li>
         <li id="menu-delete" class="menu-item" data-key="Delete"><img src="delete.svg" alt="">Delete<span class="key-bind">Del</span></li>
     </ul>
+    <div id="popup"></div>
     <script src="script.js" type="module"></script>
 </body>
 </html>

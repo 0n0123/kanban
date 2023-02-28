@@ -23,6 +23,7 @@
     --color-comment: rgba(150, 150, 155, .5);
     --color-menu-background: var(--color-background);
     --color-menu-text: var(--color-text);
+    --color-popup: hsl(0, 0%, 25%);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -42,6 +43,7 @@
         --color-comment: rgba(100, 100, 110, .5);
         --color-menu-background: hsl(0, 0%, 42%);
         --color-menu-text: var(--color-text);
+        --color-popup: hsl(0, 0%, 30%);
     }
 }
 
@@ -123,14 +125,14 @@ body {
 
 .task {
     position: absolute;
-    min-height: 3.5em;
-    width: 26em;
+    min-height: 3.6em;
+    width: 28em;
     padding: .1em .3em;
     box-shadow: 0 .2em .4em -0.3em var(--color-shadow);
     border: var(--task-border-width) solid var(--color-border);
     border-radius: .2em;
     word-wrap: break-word;
-    font-size: 1rem;
+    font-size: 0.9rem;
     transition: 
         top 400ms ease,
         left 400ms ease,
@@ -245,7 +247,7 @@ body {
 textarea {
     width: 100%;
     resize: vertical;
-    font-size: 0.85em;
+    font-size: .9em;
     display: none;
     outline: none;
     background-color: var(--color-mask);
@@ -397,62 +399,76 @@ textarea:focus {
 }
 
 #scroll {
-    position: fixed;
     bottom: 0;
     left: 0;
     cursor: pointer;
     transition: transform .1s ease;
-    user-select: none;
-    width: 1.5em;
 }
 
 #scroll.on {
     transform: rotate3d(1, 0, 0, 180deg);
 }
 
-#scroll>img {
-    display: block;
-    max-width: 100%;
-}
-
 #license {
-    position: fixed;
     top: 0;
     right: 0;
     cursor: pointer;
 }
 
-#license>img {
-    display: block;
-    max-width: 1.2em;
-    min-width: 1.2em;
-}
-
 @media (prefers-color-scheme: dark) {
     #scroll>img,
-    #license>img {
+    #license>img,
+    #status>img {
         filter: invert(100%);
     }
 }
 
 #status {
-    position: fixed;
     bottom: 0;
     right: 0;
-    margin: .3vh .3vw;
-    font-size: .5rem;
+}
+
+.background-icon {
+    position: fixed;
     user-select: none;
-    color: hsl(86, 71%, 70%);
 }
 
-#status::before {
-    content: 'Connected';
+.background-icon>img {
+    display: block;
+    max-width: 1.2em;
+    max-height: 1.2em;
 }
 
-#status.disconnected {
-    color: hsl(326, 80%, 70%);
+.hidden {
+    visibility: hidden;
+    width: 0;
+    height: 0;
 }
 
-#status.disconnected::before {
-    content: 'Disconnected';
+#popup {
+    position: fixed;
+    top: -20em;
+    left: 50vw;
+    transform: translateX(-50%);
+    box-shadow: 0 .3em .4em 0 var(--color-shadow);
+    border-radius: 10px;
+    padding: 1em 3em;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-popup);
+    color: var(--color-text-blight);
+    font-size: 0.9rem;
+    cursor: wait;
+    transition: top 100ms ease;
+    text-align: center;
+}
+
+#popup.show {
+    top: 1.2em;
+}
+
+#popup.clickable {
+    cursor: pointer;
 }

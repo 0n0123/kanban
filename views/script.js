@@ -11,7 +11,7 @@ import { Menu } from './menu.js';
 
 const container = document.getElementById('container');
 const createTask = e => {
-    const top = (e.clientY + window.pageYOffset) / document.documentElement.clientHeight * 100;
+    const top = (e.clientY + window.scrollY) / document.documentElement.clientHeight * 100;
     const left = (e.clientX / document.documentElement.clientWidth) * 100;
     Emitter.create(top, left);
 };
@@ -29,12 +29,49 @@ document.onkeyup = e => {
 };
 document.onclick = _ => Menu.hide();
 
-const status = document.getElementById('status');
+const Popup = new class {
+    #elm = document.getElementById('popup');
+
+    show(option) {
+        this.#elm.innerText = option.text ?? option;
+        this.#elm.classList.add('show');
+        if (option.clickable) {
+            this.#elm.classList.add('clickable');
+            return new Promise(r => this.#elm.onclick = r);
+        }
+        this.#elm.onclick = null;
+        this.#elm.classList.remove('clickable');
+        return Promise.resolve();
+    }
+
+    hide() {
+        this.#elm.classList.remove('show');
+    }
+}();
+
+const Status = new class {
+    elm = document.getElementById('status');
+    online = document.getElementById('status-online');
+    offline = document.getElementById('status-offline');
+
+    setConnected() {
+        this.offline.classList.add('hidden');
+        this.online.classList.remove('hidden');
+    }
+
+    setDisconnected() {
+        this.online.classList.add('hidden');
+        this.offline.classList.remove('hidden');
+    }
+}();
+
 socket.on('disconnect', () => {
-    status.classList.add('disconnected');
+    Status.setDisconnected();
+    Popup.show('Network disconnected. Waiting for reconnection...');
 });
 socket.on('welcome', ({ tasks }) => {
-    status.classList.remove('disconnected');
+    Status.setConnected();
+    Popup.hide();
     document.getElementById('tasks').innerHTML = '';
     for (const task of tasks) {
         Task.create(task.id, {
@@ -70,13 +107,12 @@ socket.on('create', ({ id, pos, text, color }) => Task.create(id, {
     color: color,
     menu: e => Menu.show(e)
 }));
-socket.on('error', message => {
-    alert(`データの更新時にエラーが発生しました。データを再取得します。\nEvent: ${message.event}`);
+socket.on('error', async message => {
+    await Popup.show({
+        text: 'Failed to update. Click to refresh screen.',
+        clickable: true
+    });
     window.location.reload();
-});
-socket.on('connect_error', _ => {
-    alert('通信エラーが発生しました。\nネットワーク接続を確認してページを更新してください。');
-    socket.disconnect();
 });
 
 document.getElementById('license').onclick = async _ => {
