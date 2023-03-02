@@ -26,9 +26,7 @@ if (backupDir.length > 0 && backupInterval > 0) {
 
 const app = express();
 app.use('/', express.static('./views'));
-app.use('/marked', express.static('./node_modules/marked/lib'));
 app.use('/socket.io', express.static('./node_modules/socket.io/client-dist'));
-app.use('/viselect', express.static('./node_modules/@viselect/vanilla/lib'));
 app.use(express.urlencoded({
     extended: true
 }));
@@ -127,7 +125,7 @@ function deleteTask(message) {
 }
 
 /**
- * @param {{ ids: string[], color?: string, highlight?: string }} message 
+ * @param {{ ids: string[], color?: string }} message 
  */
 function changeColor(message) {
     io.emit('color', message);

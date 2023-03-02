@@ -1,7 +1,7 @@
 import { Emitter } from './emitter.js';
 import { io } from '/socket.io/socket.io.esm.min.js';
-import { marked } from '/marked/marked.esm.js';
-import SelectionArea from '/viselect/viselect.esm.js';
+import { marked } from './3rd-party/marked-4.2.12.min.js';
+import SelectionArea from './3rd-party/viselect-3.2.5.mjs';
 
 const socket = io();
 Emitter.init(socket);

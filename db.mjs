@@ -13,7 +13,7 @@ export const db = new class {
         }
 
         this.db = new sqlite(DB_FILE);
-        this.db.exec('CREATE TABLE IF NOT EXISTS task (id TEXT PRIMARY KEY, top REAL, left REAL, text TEXT, color TEXT, zindex INTEGER)');
+        this.db.exec('CREATE TABLE IF NOT EXISTS task (id TEXT PRIMARY KEY, top REAL, left REAL, text TEXT, color TEXT)');
         this.db.exec('CREATE INDEX IF NOT EXISTS idindex ON task(id)');
         this.db.exec('VACUUM');
     }
@@ -29,11 +29,10 @@ export const db = new class {
      *      left: number,
      *      text: string,
      *      color: string,
-     *      zindex: number,
      * }[]}
      */
     getAll() {
-        return this.db.prepare('SELECT * FROM task ORDER BY zindex ASC, id DESC').all();
+        return this.db.prepare('SELECT * FROM task').all();
     }
 
     /**
@@ -49,22 +48,16 @@ export const db = new class {
      * @returns 
      */
     createTask(info) {
-        this.db.transaction(() => {
-            const { id, pos, text, color } = info;
-            const { max } = this.db.prepare('SELECT max(zindex) as max FROM task').get();
-            const insertTask = this.db.prepare('INSERT INTO task VALUES(@id, @top, @left, @text, @color, @max)');
-            insertTask.run({ id, top: pos.top, left: pos.left, text, color, max });
-        }).immediate();
+        const { id, pos: { top, left }, text, color } = info;
+        this.db.prepare('INSERT INTO task VALUES(?, ?, ?, ?, ?)').run(id, top, left, text, color);
     }
 
     /**
      * @param {string[]} ids 
      */
     deleteTask(ids) {
-        const deleteTask = this.db.prepare('DELETE FROM task WHERE id = ?');
-        for (const id of ids) {
-            deleteTask.run(id);
-        }
+        const idsText = ids.map(id => `'${id}'`).join(',');
+        this.db.prepare(`DELETE FROM task WHERE id IN (${idsText})`).run();
     }
 
     /**
@@ -72,10 +65,8 @@ export const db = new class {
      * @param {string} color
      */
     changeColor(ids, color) {
-        const updateTask = this.db.prepare('UPDATE task SET color = ? WHERE id = ?');
-        for (const id of ids) {
-            updateTask.run(color, id);
-        }
+        const idsText = ids.map(id => `'${id}'`).join(',');
+        this.db.prepare(`UPDATE task SET color = ? WHERE id IN (${idsText})`).run(color);
     }
 
     /**
@@ -106,13 +97,13 @@ export const db = new class {
      * @param {string[]} ids 
      */
     updateToFront(ids) {
+        const idsText = ids.map(id => `'${id}'`).join(',');
         this.db.transaction(() => {
-            const updateMax = this.db.prepare('UPDATE task SET zindex = ? WHERE id = ?');
-            let { max } = this.db.prepare('SELECT max(zindex) as max FROM task').get();
-            for (const id of ids) {
-                updateMax.run(++max, id);
+            const tasks = this.db.prepare(`SELECT * FROM task WHERE id IN (${idsText})`).all();
+            this.deleteTask(ids);
+            for (const task of tasks) {
+                this.db.prepare('INSERT INTO task VALUES(@id, @top, @left, @text, @color)').run(task);
             }
-            this.db.prepare('UPDATE task AS t SET zindex = (SELECT newindex FROM (SELECT row_number() over(ORDER BY zindex ASC) AS newindex, id FROM task) WHERE id = t.id)').run();
         }).immediate();
     }
 }();

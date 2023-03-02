@@ -1,6 +1,6 @@
 {
   "name": "kanban",
-  "version": "2.3.0",
+  "version": "3.0.0",
   "description": "Task Kanban Application",
   "main": "index.mjs",
   "scripts": {
@@ -10,15 +10,13 @@
     "uninstall-service": "winser -r -x",
     "pack": "npm-pack-zip"
   },
-  "author": "K. Ono",
+  "author": "0N0123",
   "license": "MIT",
   "dependencies": {
-    "@viselect/vanilla": "^3.0.0-beta.13",
-    "better-sqlite3": "^7.5.0",
-    "express": "^4.16.4",
-    "log4js": "^4.1.0",
-    "marked": "^4.0.12",
-    "socket.io": "^4.4.1",
+    "better-sqlite3": "^8.1.0",
+    "express": "^4.18.2",
+    "log4js": "^6.8.0",
+    "socket.io": "^4.6.1",
     "winser": "^1.0.3"
   },
   "devDependencies": {
