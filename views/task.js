@@ -1,6 +1,6 @@
 import { Emitter } from './emitter.js';
 import { Scroll } from './scroll.js';
-import { marked } from './3rd-party/marked-4.2.12.min.js';
+import { marked } from './3rd-party/marked.esm.js';
 
 const $tasks = document.getElementById('tasks');
 const CLASS_TASK = 'task';

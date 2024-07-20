@@ -1,25 +1,30 @@
 import fs from 'node:fs';
+import path from 'node:path';
 import sqlite from 'better-sqlite3';
 import log4js from 'log4js';
 const logger = log4js.getLogger();
 
-const DB_DIR = './database';
-const DB_FILE = DB_DIR + '/db.sqlite';
+export class DB {
+    #dir;
+    #dbFile;
 
-export const db = new class {
-    constructor() {
-        if (!fs.existsSync(DB_DIR)) {
-            fs.mkdirSync(DB_DIR);
+    constructor(currentDir) {
+        this.#dir = path.resolve(currentDir, 'database');
+        this.#dbFile = path.resolve(this.#dir, 'db.sqlite');
+
+        if (!fs.existsSync(this.#dir)) {
+            fs.mkdirSync(this.#dir);
         }
 
-        this.db = new sqlite(DB_FILE);
+        this.db = new sqlite(this.#dbFile);
         this.db.exec('CREATE TABLE IF NOT EXISTS task (id TEXT PRIMARY KEY, top REAL, left REAL, text TEXT, color TEXT)');
         this.db.exec('CREATE INDEX IF NOT EXISTS idindex ON task(id)');
         this.db.exec('VACUUM');
     }
     
     backup(to) {
-        this.db.backup(to + '/db.sqlite').catch(e => logger.error('Failed to backup.', e));
+        const dst = path.resolve(to, 'db.sqlite');
+        this.db.backup(dst).catch(e => logger.error('Failed to backup.', e));
     }
 
     /**
@@ -32,7 +37,14 @@ export const db = new class {
      * }[]}
      */
     getAll() {
-        return this.db.prepare('SELECT * FROM task').all();
+        const tasks = this.db.prepare('SELECT * FROM task').all();
+        return tasks.map(t => ({
+            id: t['id'] || '',
+            top: t['top'] || 0,
+            left: t['left'] || 0,
+            text: t['text'] || '',
+            color: t['color'] || 'white'
+        }));
     }
 
     /**
@@ -106,4 +118,4 @@ export const db = new class {
             }
         }).immediate();
     }
-}();
+}

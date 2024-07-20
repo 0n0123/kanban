@@ -1,22 +1,24 @@
 import express from 'express';
 import log4js from 'log4js';
 import fs from 'node:fs';
+import path from 'node:path';
+import { Server } from 'socket.io';
+import { Config } from './config.mjs';
 
-log4js.configure('./logconfig.json');
+const currentDir = path.resolve(process.cwd());
+
+const logConfig = path.resolve(currentDir, 'conf', 'logconfig.json');
+log4js.configure(logConfig);
 const logger = log4js.getLogger();
 logger.info(`Application is starting (NODE_ENV=${process.env.NODE_ENV})`);
 
-const settings = JSON.parse(fs.readFileSync('./config.json').toString());
-if (settings.port === undefined ||
-    settings.port === '' ||
-    isNaN(parseInt(settings.port))) {
-    logger.error('Invalid port number: ' + settings.port);
-    process.exit();
-}
+const settings = new Config(currentDir);
 
-import { db } from './db.mjs';
-const backupDir = settings.backup['dest.dir'];
-const backupInterval = settings.backup['interval.minutes'];
+import { DB } from './db.mjs';
+const db = new DB(currentDir);
+
+const backupDir = settings.getBackupDest();
+const backupInterval = settings.getBackupIntervalMinutes();
 if (backupDir.length > 0 && backupInterval > 0) {
     if (!fs.existsSync(backupDir)) {
         fs.mkdirSync(backupDir);
@@ -25,20 +27,20 @@ if (backupDir.length > 0 && backupInterval > 0) {
 }
 
 const app = express();
-app.use('/', express.static('./views'));
-app.use('/socket.io', express.static('./node_modules/socket.io/client-dist'));
+app.use('/', express.static(path.resolve(currentDir, 'views')));
+app.use('/socket.io', express.static(path.resolve(currentDir, 'node_modules/socket.io/client-dist')));
 app.use(express.urlencoded({
     extended: true
 }));
 app.use(express.json());
-app.set('views', './views');
+app.set('views', path.resolve(currentDir, 'views'));
 app.use(log4js.connectLogger(logger, {}));
 
 import http from 'node:http';
 http.createServer(app);
-import { Server } from 'socket.io';
 
-const server = http.createServer(app).listen(settings.port, () => logger.info('Listening to port: ' + settings.port));
+const port = settings.getPort();
+const server = http.createServer(app).listen(port, () => logger.info('Listening to port: ' + port));
 const io = new Server(server);
 
 /**
