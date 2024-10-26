@@ -5,14 +5,41 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "node",
+            "type": "lldb",
             "request": "launch",
-            "name": "プログラムの起動",
-            "skipFiles": [
-                "<node_internals>/**"
-            ],
-            "program": "${workspaceFolder}/src/index.mjs",
-            "console": "integratedTerminal"
+            "name": "Debug executable 'kanban'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=kanban",
+                    "--package=kanban"
+                ],
+                "filter": {
+                    "name": "kanban",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'kanban'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=kanban",
+                    "--package=kanban"
+                ],
+                "filter": {
+                    "name": "kanban",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
         }
     ]
 }

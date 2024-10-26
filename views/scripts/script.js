@@ -1,7 +1,7 @@
 import { Emitter } from './emitter.js';
-import { io } from '/socket.io/socket.io.esm.min.js';
-import { marked } from './3rd-party/marked.esm.js';
-import SelectionArea from './3rd-party/viselect.mjs';
+import { io } from './3rd-party/socket.io.min.js';
+import './3rd-party/marked.min.js';
+import './3rd-party/viselect.min.js';
 
 const socket = io();
 Emitter.init(socket);
@@ -75,38 +75,52 @@ socket.on('welcome', ({ tasks }) => {
     document.getElementById('tasks').innerHTML = '';
     for (const task of tasks) {
         Task.create(task.id, {
-            top: task.top,
-            left: task.left,
+            top: task.pos.top,
+            left: task.pos.left,
             text: task.text,
             color: task.color,
             menu: e => Menu.show(e)
         });
     }
 });
-socket.on('color', ({ ids, color }) => {
-    for (const id of ids) {
+socket.on('color', ({ tasks }) => {
+    for (const { id, color } of tasks) {
         const task = new Task(id);
         task.setColor(color);
     }
 });
-socket.on('text', ({ id, text }) => {
-    const task = new Task(id);
-    task.setText(text);
+socket.on('text', ({ tasks }) => {
+    for (const { id, text } of tasks) {
+        const task = new Task(id);
+        task.setText(text);
+    }
 });
-socket.on('move', message => {
-    for (const { id, pos } of message.tasks) {
+socket.on('move', ({ tasks }) => {
+    for (const { id, pos } of tasks) {
         new Task(id).setPosition(pos);
     }
 });
-socket.on('tofront', ({ ids }) => ids.forEach(id => new Task(id).toFront()));
-socket.on('delete', ({ ids }) => ids.forEach(id => new Task(id).remove()));
-socket.on('create', ({ id, pos, text, color }) => Task.create(id, {
-    top: pos.top,
-    left: pos.left,
-    text: text,
-    color: color,
-    menu: e => Menu.show(e)
-}));
+socket.on('tofront', ({ tasks }) => {
+    for (const { id } of tasks) {
+        new Task(id).toFront()
+    }
+});
+socket.on('delete', ({ tasks }) => {
+    for (const { id } of tasks) {
+        new Task(id).remove();
+    }
+});
+socket.on('create', ({ tasks }) => {
+    for (const { id, pos, text, color } of tasks) {
+        Task.create(id, {
+            top: pos.top,
+            left: pos.left,
+            text: text,
+            color: color,
+            menu: e => Menu.show(e)
+        });
+    }
+});
 socket.on('error', async message => {
     await Popup.show({
         text: 'Failed to update. Click to refresh screen.',

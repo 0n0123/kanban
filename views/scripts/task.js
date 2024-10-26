@@ -1,6 +1,6 @@
 import { Emitter } from './emitter.js';
 import { Scroll } from './scroll.js';
-import { marked } from './3rd-party/marked.esm.js';
+import './3rd-party/marked.min.js';
 
 const $tasks = document.getElementById('tasks');
 const CLASS_TASK = 'task';
@@ -21,7 +21,7 @@ export class Task {
         this.origin = {
             x: 0,
             y: 0,
-            pos: {}
+            pos: {},
         };
     }
 
@@ -84,8 +84,8 @@ export class Task {
         };
         let scrolling = null;
         const move = event => {
-            if ((event.clientY >= window.innerHeight && window.pageYOffset === 0) ||
-                (event.clientY <= 0 && window.pageYOffset > 0) &&
+            if ((event.clientY >= window.innerHeight && window.scrollY === 0) ||
+                (event.clientY <= 0 && window.scrollY > 0) &&
                 scrolling === null) {
                 scrolling = Scroll.doScroll();
                 scrolling.then(() => scrolling = null);
@@ -97,6 +97,7 @@ export class Task {
                     top: f.origin.pos.top + (mousePos.y - this.origin.y)
                 });
             }
+            event.stopPropagation();
         };
         const comeback = (pos, max) => {
             if (pos < 0) {
@@ -107,21 +108,21 @@ export class Task {
             return pos;
         };
 
-        const drop = _ => {
+        const drop = event => {
             window.getSelection().collapse(document.body, 0);
-            Emitter.moveTask(focused.map(f => {
-                const pos = f.getPosition();
-                const newLeft = comeback(pos.left, 100);
-                const newTop = comeback(pos.top, 200);
-                f.elm.classList.remove(CLASS_MOVING);
-                return {
-                    id: f.id,
-                    pos: {
-                        left: newLeft,
-                        top: newTop
-                    }
-                };
-            }));
+                Emitter.moveTask(focused.map(f => {
+                    const pos = f.getPosition();
+                    const newLeft = comeback(pos.left, 100);
+                    const newTop = comeback(pos.top, 200);
+                    f.elm.classList.remove(CLASS_MOVING);
+                    return {
+                        id: f.id,
+                        pos: {
+                            left: newLeft,
+                            top: newTop
+                        }
+                    };
+                }));
             document.onmousemove = null;
             document.onmouseup = null;
             focused.length = 0;
@@ -140,7 +141,7 @@ export class Task {
         this.elm.onmousemove = hover;
 
         this.elm.onmousedown = mousedown;
-        this.elm.ondblclick = event => this.edit();
+        this.elm.ondblclick = _ => this.edit();
 
         this.input.onkeydown = event => {
             if (event.code === 'Tab') {
@@ -176,7 +177,7 @@ export class Task {
             this.elm.onmousedown = mousedown;
         };
     }
-    
+
     edit() {
         if (!this.elm.classList.contains(CLASS_EDITING)) {
             Task.#onDocumentKeyUp = document.onkeyup;
