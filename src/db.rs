@@ -195,13 +195,13 @@ impl From<&Row<'_>> for TaskInfo {
             left: row.get("left").unwrap_or(0f64),
         };
         Self {
-            id: row.get("id").map(|id| Some(id)).unwrap_or(None),
+            id: row.get("id").map(Some).unwrap_or(None),
             color: row
                 .get("color")
                 .map(|col: String| Some(Color::from(col)))
                 .unwrap_or(None),
             pos: Some(pos),
-            text: row.get("text").map(|text| Some(text)).unwrap_or(None),
+            text: row.get("text").map(Some).unwrap_or(None),
         }
     }
 }
@@ -228,7 +228,7 @@ impl TaskInfoBuilder {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
 #[serde(rename_all = "camelCase")]
 pub enum Color {
     Red,
@@ -238,6 +238,7 @@ pub enum Color {
     Blue,
     Indigo,
     Purple,
+    #[default]
     White,
     Black,
 }
@@ -262,25 +263,19 @@ where
     }
 }
 
-impl ToString for Color {
-    fn to_string(&self) -> String {
+impl Display for Color {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Color::Red => String::from("red"),
-            Color::Orange => String::from("orange"),
-            Color::Yellow => String::from("yellow"),
-            Color::Green => String::from("green"),
-            Color::Blue => String::from("blue"),
-            Color::Indigo => String::from("indigo"),
-            Color::Purple => String::from("purple"),
-            Color::White => String::from("white"),
-            Color::Black => String::from("black"),
+            Color::Red => write!(f, "red"),
+            Color::Orange => write!(f, "orange"),
+            Color::Yellow => write!(f, "yellow"),
+            Color::Green => write!(f, "green"),
+            Color::Blue => write!(f, "blue"),
+            Color::Indigo => write!(f, "indigo"),
+            Color::Purple => write!(f, "purple"),
+            Color::White => write!(f, "white"),
+            Color::Black => write!(f, "black"),
         }
-    }
-}
-
-impl Default for Color {
-    fn default() -> Self {
-        Color::White
     }
 }
 

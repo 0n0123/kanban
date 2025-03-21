@@ -43,6 +43,7 @@ fn prepare_logger() {
     let stdout = std::io::stdout.with_max_level(tracing::Level::INFO);
     tracing_subscriber::fmt()
         .with_thread_names(true)
+        .json()
         .with_writer(stdout.and(file_appender))
         .init();
 }
@@ -118,27 +119,27 @@ fn create(socket: SocketRef, mes: Message) -> Result<()> {
 
 #[tracing::instrument(skip(socket))]
 fn change_color(socket: SocketRef, mes: Message) -> Result<()> {
-    update_tasks(socket, mes, ColorChanger::default())
+    update_tasks(socket, mes, ColorChanger)
 }
 
 #[tracing::instrument(skip(socket))]
 fn edit_text(socket: SocketRef, mes: Message) -> Result<()> {
-    update_tasks(socket, mes, TextEditor::default())
+    update_tasks(socket, mes, TextEditor)
 }
 
 #[tracing::instrument(skip(socket))]
 fn move_task(socket: SocketRef, mes: Message) -> Result<()> {
-    update_tasks(socket, mes, PosMover::default())
+    update_tasks(socket, mes, PosMover)
 }
 
 #[tracing::instrument(skip(socket))]
 fn delete_task(socket: SocketRef, mes: Message) -> Result<()> {
-    update_tasks(socket, mes, TaskDeleter::default())
+    update_tasks(socket, mes, TaskDeleter)
 }
 
 #[tracing::instrument(skip(socket))]
 fn to_front(socket: SocketRef, mes: Message) -> Result<()> {
-    update_tasks(socket, mes, TaskRaiser::default())
+    update_tasks(socket, mes, TaskRaiser)
 }
 
 trait TaskUpdater {
@@ -211,7 +212,7 @@ impl TaskUpdater for TaskRaiser {
 fn update_tasks(socket: SocketRef, mes: Message, updater: impl TaskUpdater) -> Result<()> {
     let mut tasks = Vec::new();
     for info in mes.tasks.iter() {
-        if let Ok(_) = updater.update(info) {
+        if updater.update(info).is_ok() {
             tasks.push(info.clone())
         }
     }
@@ -220,8 +221,8 @@ fn update_tasks(socket: SocketRef, mes: Message, updater: impl TaskUpdater) -> R
 
     let mes = Message::new(tasks);
     let event = updater.get_event();
-    socket.broadcast().emit(&event, &mes)?;
-    socket.emit(&event, &mes)?;
+    socket.broadcast().emit(event, &mes)?;
+    socket.emit(event, &mes)?;
 
     Ok(())
 }
