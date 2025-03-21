@@ -2,14 +2,14 @@ mod db;
 
 use std::env;
 
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow};
 use axum::Router;
 use db::{Db, TaskInfo};
 use serde::{Deserialize, Serialize};
 use socketioxide::{
+    SocketIo,
     extract::{Data, SocketRef},
     layer::SocketIoLayer,
-    SocketIo,
 };
 use tower_http::services::ServeDir;
 use tracing::{error, info};

@@ -1,8 +1,8 @@
 use std::{fmt::Display, time::SystemTime};
 
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow};
 use rand::prelude::*;
-use rusqlite::{params, Connection, Row, Statement};
+use rusqlite::{Connection, Row, Statement, params};
 use serde::{Deserialize, Serialize};
 
 pub struct Db(rusqlite::Connection);
