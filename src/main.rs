@@ -3,7 +3,8 @@ mod db;
 use std::env;
 
 use anyhow::{Result, anyhow};
-use axum::Router;
+use askama::Template;
+use axum::{extract::Query, response::IntoResponse};
 use db::{Db, TaskInfo};
 use serde::{Deserialize, Serialize};
 use socketioxide::{
@@ -11,7 +12,6 @@ use socketioxide::{
     extract::{Data, SocketRef},
     layer::SocketIoLayer,
 };
-use tower_http::services::ServeDir;
 use tracing::{error, info};
 use tracing_subscriber::fmt::writer::MakeWriterExt;
 
@@ -20,22 +20,28 @@ async fn main() -> Result<()> {
     prepare_logger();
     Db::open()
         .init()
-        .inspect_err(|e| error!("Cannot initialize DB. {e}"))?;
+        .inspect_err(|e| error!("Failed to initialize DB. {e}"))?;
 
     let socket_layer = setup_socketio();
 
     let app = route(socket_layer);
-    let port = env::var("KANBAN_PORT").unwrap_or(String::from("3000"));
-    let port = port
-        .parse::<u16>()
-        .map_err(|_| anyhow!("KANBAN_PORT is invalid."))?;
+    let port = match env::var("KANBAN_PORT").map(|var| var.parse::<u16>()) {
+        Ok(Ok(port)) => port,
+        _ => {
+            error!("Invalid port number. Using default port 3000.");
+            3000
+        }
+    };
+
     let listener = tokio::net::TcpListener::bind(("0.0.0.0", port))
         .await
-        .map_err(|_| anyhow!("Cannot bind port {port}."))?;
-    println!("Listening on port {port}");
+        .map_err(|_| anyhow!("Failed to bind port {port}."))?;
+
+    info!("Listening on port {port}");
+
     axum::serve(listener, app)
         .await
-        .map_err(|_| anyhow!("Cannot start up server."))
+        .map_err(|_| anyhow!("Failed to start up server."))
 }
 
 fn prepare_logger() {
@@ -48,10 +54,51 @@ fn prepare_logger() {
         .init();
 }
 
-fn route(socket: SocketIoLayer) -> Router {
-    Router::new()
-        .nest_service("/", ServeDir::new("views"))
+fn route(socket: SocketIoLayer) -> axum::Router {
+    axum::Router::new()
+        .route("/", axum::routing::get(render))
+        .nest_service("/assets", tower_http::services::ServeDir::new("assets"))
         .layer(socket)
+}
+
+async fn render(Query(IndexQuery { readonly }): Query<IndexQuery>) -> axum::response::Response {
+    let mode = Mode::read();
+    let readonly = readonly.unwrap_or(false);
+    let index = Index { mode, readonly };
+    match index.render() {
+        Ok(html) => axum::response::Html(html).into_response(),
+        Err(e) => {
+            error!("Failed to render index. {e}");
+            axum::response::Html("Failed to render index.".to_string()).into_response()
+        }
+    }
+}
+
+#[derive(Deserialize)]
+struct IndexQuery {
+    readonly: Option<bool>,
+}
+
+#[derive(askama::Template)]
+#[template(path = "index.html")]
+struct Index {
+    mode: Mode,
+    readonly: bool,
+}
+
+enum Mode {
+    Task,
+    Kpt,
+}
+
+impl Mode {
+    fn read() -> Self {
+        let env = env::var("KANBAN_MODE").unwrap_or_else(|_| "task".to_string());
+        match env.as_str() {
+            "kpt" => Mode::Kpt,
+            _ => Mode::Task,
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]

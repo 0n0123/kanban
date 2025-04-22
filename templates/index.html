@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>
+        {% match mode %}
+        {% when crate::Mode::Task %}
+        Kanban
+        {% when crate::Mode::Kpt %}
+        KPT Board
+        {% endmatch %}
+    </title>
+    <meta http-equiv="Cache-Control" content="no-store">
+    <meta name="viewport" content="initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <link rel="icon" type="image/png" href="/assets/img/kanban_icon.png" />
+    <link rel="stylesheet" href="/assets/style.css" />
+    <base target="_blank">
+</head>
+
+<body>
+    <div id="container">
+        <div id="container-main">
+            {% match mode %}
+            {% when crate::Mode::Task %}
+            <div class="pane task-todo">To Do</div>
+            <div class="pane task-doing">Doing</div>
+            <div class="pane task-done">Done</div>
+            {% when crate::Mode::Kpt %}
+            <div class="pane kpt-keep">Keep</div>
+            <div class="pane kpt-problem">Problem</div>
+            <div class="pane kpt-try">Try</div>
+            {% endmatch %}
+        </div>
+        <div id="container-stock"></div>
+    </div>
+    <div id="status" class="background-icon">
+        <img class="app-icon" id="status-online" src="/assets/img/online.svg" title="Online" />
+        <img class="app-icon" id="status-offline" src="/assets/img/offline.svg" class="hidden" title="Offline" />
+    </div>
+    <div id="scroll" class="background-icon">
+        <img class="app-icon" src="/assets/img/arrow.svg" alt="v">
+    </div>
+    <div id="license" class="background-icon">
+        <a href="/assets/LICENSES.md" target="_blank">
+            <img class="app-icon" src="/assets/img/licenses.svg" alt="" title="3rd Party Licenses">
+        </a>
+    </div>
+    <div id="tasks"></div>
+    <ul id="menu" class="menu">
+        <li class="menu-colors">
+            <div class="menu-color red" data-color="red" data-key="Digit1">1</div>
+            <div class="menu-color orange" data-color="orange" data-key="Digit2">2</div>
+            <div class="menu-color yellow" data-color="yellow" data-key="Digit3">3</div>
+            <div class="menu-color green" data-color="green" data-key="Digit4">4</div>
+            <div class="menu-color blue" data-color="blue" data-key="Digit5">5</div>
+            <div class="menu-color indigo" data-color="indigo" data-key="Digit6">6</div>
+            <div class="menu-color purple" data-color="purple" data-key="Digit7">7</div>
+            <div class="menu-color white" data-color="white" data-key="Digit8">8</div>
+            <div class="menu-color black" data-color="black" data-key="Digit9">9</div>
+        </li>
+        <li id="menu-tofront" class="menu-item" data-key="KeyZ">
+            <img class="app-icon" src="/assets/img/tofront.svg" alt="">To Front<span class="key-bind">Z</span>
+        </li>
+        <li id="menu-move" class="menu-item" data-key="KeyN">
+            <img class="app-icon" src="/assets/img/updown.svg" alt="">Move<span class="key-bind">N</span>
+        </li>
+        <li id="menu-delete" class="menu-item" data-key="Delete">
+            <img class="app-icon" src="/assets/img/delete.svg" alt="">Delete<span class="key-bind">Del</span>
+        </li>
+    </ul>
+    <div id="popup"></div>
+    {% if readonly %}
+    <script src="/assets/scripts/index.js" type="module"></script>
+    {% else %}
+    <script src="/assets/scripts/script.js" type="module"></script>
+    {% endif %}
+</body>
+
+</html>

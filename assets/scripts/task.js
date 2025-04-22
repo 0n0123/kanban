@@ -1,6 +1,6 @@
 import { Emitter } from './emitter.js';
 import { Scroll } from './scroll.js';
-import './3rd-party/marked.min.js';
+import { marked } from './3rd-party/marked.esm.js';
 
 const $tasks = document.getElementById('tasks');
 const CLASS_TASK = 'task';
@@ -41,7 +41,7 @@ export class Task {
         displayText.innerHTML = marked.parse(txt);
         newTask.appendChild(displayText);
         const textarea = document.createElement('textarea');
-        textarea.placeholder = 'Press Ctrl+Enter or Ctrl+Alt+Enter to start a new line,\nCtrl+Shift+Enter to input a hover comment.';
+        textarea.placeholder = 'Press Ctrl+Enter or Ctrl+Alt+Enter to start a new line.';
         textarea.value = txt;
         newTask.appendChild(textarea);
         $tasks.appendChild(newTask);
@@ -110,19 +110,19 @@ export class Task {
 
         const drop = event => {
             window.getSelection().collapse(document.body, 0);
-                Emitter.moveTask(focused.map(f => {
-                    const pos = f.getPosition();
-                    const newLeft = comeback(pos.left, 100);
-                    const newTop = comeback(pos.top, 200);
-                    f.elm.classList.remove(CLASS_MOVING);
-                    return {
-                        id: f.id,
-                        pos: {
-                            left: newLeft,
-                            top: newTop
-                        }
-                    };
-                }));
+            Emitter.moveTask(focused.map(f => {
+                const pos = f.getPosition();
+                const newLeft = comeback(pos.left, 100);
+                const newTop = comeback(pos.top, 200);
+                f.elm.classList.remove(CLASS_MOVING);
+                return {
+                    id: f.id,
+                    pos: {
+                        left: newLeft,
+                        top: newTop
+                    }
+                };
+            }));
             document.onmousemove = null;
             document.onmouseup = null;
             focused.length = 0;
@@ -148,15 +148,10 @@ export class Task {
                 applyText();
                 event.preventDefault();
             } else if (event.ctrlKey && event.code === 'Enter') {
-                if (event.shiftKey) {
-                    this.input.value = this.input.value + '\n\n' + '<comment>\n\n</comment>';
-                    this.input.selectionEnd = this.input.value.length - '</comment>'.length - 1;
-                } else {
-                    const br = event.altKey ? '<br>\n' : '  \n';
-                    const cursor = this.input.selectionEnd;
-                    this.input.value = this.input.value.substring(0, cursor) + br + this.input.value.substring(cursor);
-                    this.input.selectionEnd = cursor + br.length;
-                }
+                const br = event.altKey ? '<br>\n' : '  \n';
+                const cursor = this.input.selectionEnd;
+                this.input.value = this.input.value.substring(0, cursor) + br + this.input.value.substring(cursor);
+                this.input.selectionEnd = cursor + br.length;
                 event.preventDefault();
             }
             event.stopPropagation();

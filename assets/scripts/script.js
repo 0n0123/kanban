@@ -1,13 +1,12 @@
 import { Emitter } from './emitter.js';
-import { io } from './3rd-party/socket.io.min.js';
-import './3rd-party/marked.min.js';
-import './3rd-party/viselect.min.js';
+import { Popup, Status } from './status.js';
+import { Task } from './task.js';
+import { Menu } from './menu.js';
+import { io } from './3rd-party/socket.io.esm.min.js';
+import SelectionArea from './3rd-party/viselect.mjs';
 
 const socket = io();
 Emitter.init(socket);
-
-import { Task } from './task.js';
-import { Menu } from './menu.js';
 
 const container = document.getElementById('container');
 const createTask = e => {
@@ -28,42 +27,6 @@ document.onkeyup = e => {
     Menu.hide();
 };
 document.onclick = _ => Menu.hide();
-
-const Popup = new class {
-    #elm = document.getElementById('popup');
-
-    show(option) {
-        this.#elm.innerText = option.text ?? option;
-        this.#elm.classList.add('show');
-        if (option.clickable) {
-            this.#elm.classList.add('clickable');
-            return new Promise(r => this.#elm.onclick = r);
-        }
-        this.#elm.onclick = null;
-        this.#elm.classList.remove('clickable');
-        return Promise.resolve();
-    }
-
-    hide() {
-        this.#elm.classList.remove('show');
-    }
-}();
-
-const Status = new class {
-    elm = document.getElementById('status');
-    online = document.getElementById('status-online');
-    offline = document.getElementById('status-offline');
-
-    setConnected() {
-        this.offline.classList.add('hidden');
-        this.online.classList.remove('hidden');
-    }
-
-    setDisconnected() {
-        this.online.classList.add('hidden');
-        this.offline.classList.remove('hidden');
-    }
-}();
 
 socket.on('disconnect', () => {
     Status.setDisconnected();
@@ -129,13 +92,6 @@ socket.on('error', async message => {
     window.location.reload();
 });
 
-document.getElementById('license').onclick = async _ => {
-    const popup = window.open('about:blank', '_blank');
-    popup.document.title = 'Kanban - 3rd Party Licenses';
-    const data = await fetch('LICENSES.md').then(res => res.text());
-    popup.document.body.innerHTML = marked.parse(data);
-};
-
 const selection = new SelectionArea({
     selectables: ['.task'],
     boundaries: ['#container'],
@@ -143,10 +99,10 @@ const selection = new SelectionArea({
     Task.unfocusAll();
     selection.clearSelection();
 }).on('move', ({ store: { changed: { added, removed } } }) => {
-    for (const el of added) {
+    for (const el of added.filter(el => document.body.contains(el))) {
         new Task(el.id).focus();
     }
-    for (const el of removed) {
+    for (const el of removed.filter(el => document.body.contains(el))) {
         new Task(el.id).unfocus();
     }
 });

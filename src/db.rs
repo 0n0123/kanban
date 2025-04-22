@@ -1,7 +1,6 @@
-use std::{fmt::Display, time::SystemTime};
+use std::fmt::Display;
 
 use anyhow::{Result, anyhow};
-use rand::prelude::*;
 use rusqlite::{Connection, Row, Statement, params};
 use serde::{Deserialize, Serialize};
 
@@ -41,7 +40,7 @@ impl Db {
 
     pub fn create_task(&self, info: &TaskInfo) -> Result<TaskInfo> {
         let mut stmt = self.prepare("INSERT INTO task VALUES(?1, ?2, ?3, ?4, ?5)")?;
-        let id = create_id();
+        let id = uuid::Uuid::now_v7().to_string();
         let Position { top, left } = info.get_pos();
         let text = info.get_text();
         let color = info.get_color_as_string();
@@ -108,22 +107,6 @@ impl Db {
             .prepare(sql)
             .map_err(|_| anyhow!("Failed to prepare statement {sql}"))
     }
-}
-
-const ALPHABET: &str = "abcdefghijklmnopqrstuvwxyz";
-
-fn create_id() -> String {
-    let now = SystemTime::now()
-        .duration_since(SystemTime::UNIX_EPOCH)
-        .unwrap()
-        .as_millis();
-    let mut alphabets = String::new();
-    for _ in 0..3 {
-        let n = thread_rng().gen_range(0..ALPHABET.len());
-        let a = ALPHABET.chars().nth(n).unwrap();
-        alphabets.push(a);
-    }
-    format!("{now}{alphabets}")
 }
 
 #[derive(Serialize, Deserialize, Default, Debug, Clone)]

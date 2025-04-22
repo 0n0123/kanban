@@ -1,6 +1,4 @@
 :root {
-    --color-tel-cyan: hsl(194, 100%, 43%);
-    --color-tel-green: hsl(86, 71%, 43%);
     --color-background: hsl(30, 30%, 96%);
     --task-border-width: .1rem;
     --color-red: hsl(326, 80%, 80%);
@@ -10,19 +8,15 @@
     --color-blue: hsl(194, 100%, 80%);
     --color-indigo: hsl(225, 100%, 80%);
     --color-purple: hsl(280, 54%, 80%);
-    --color-white: hsl(60, 3%, 88%);
+    --color-white: hsl(60, 3%, 83%);
     --color-black: hsl(0, 0%, 45%);
     --color-text: hsl(0, 0%, 17%);
     --color-text-blight: hsl(0, 0%, 94%);
-    --color-link: hsl(194, 100%, 43%);
     --color-line: hsl(220, 1%, 66%);
-    --color-shadow: rgba(0, 0, 0, .3);
-    --color-border: rgba(0, 0, 0, .08);
+    --color-shadow: rgb(0 0 0 / .3);
+    --color-border: rgb(0 0 0 / .08);
     --color-focus: hsla(55, 100%, 46%, 0.6);
-    --color-mask: rgba(255, 255, 255, .7);
-    --color-comment: rgba(150, 150, 155, .5);
-    --color-menu-background: var(--color-background);
-    --color-menu-text: var(--color-text);
+    --color-mask: rgba(255 255 255 / .7);
     --color-popup: hsl(0, 0%, 25%);
 }
 
@@ -36,13 +30,11 @@
         --color-blue: hsl(194, 100%, 30%);
         --color-indigo: hsl(225, 100%, 30%);
         --color-purple: hsl(280, 54%, 30%);
-        --color-white: hsl(220, 1%, 72%);
-        --color-black: hsl(0, 0%, 34%);
-        --color-text: hsl(60, 3%, 84%);
-        --color-shadow: rgba(0, 0, 0, .4);
-        --color-comment: rgba(100, 100, 110, .5);
-        --color-menu-background: hsl(0, 0%, 42%);
-        --color-menu-text: var(--color-text);
+        --color-white: hsl(60, 1%, 56%);
+        --color-black: hsl(0, 0%, 28%);
+        --color-text: hsl(60, 3%, 87%);
+        --color-shadow: rgb(0 0 0 / .4);
+        --color-border: rgb(255 255 255 / .3);
         --color-popup: hsl(0, 0%, 30%);
     }
 }
@@ -50,7 +42,7 @@
 * {
     margin: 0;
     padding: 0;
-    font-family: "Meiryo UI", sans-serif;
+    font-family: "Meiryo UI", Osaka, sans-serif;
     box-sizing: border-box;
 }
 
@@ -76,26 +68,58 @@ body {
     width: 100%;
     background-color: var(--color-background);
     transition: all .5s ease;
+    scroll-snap-type: y mandatory;
 }
 
 #container-main {
     width: 100%;
     height: 100vh;
-    display: flex;
-    flex-direction: row;
-    scroll-snap-type: y mandatory;
-    border-bottom: 1px solid var(--color-tel-cyan);
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    column-gap: 0;
+    row-gap: 0;
+    scroll-snap-align: start;
 }
 
 .pane {
-    width: calc(100% / 3);
-    height: 100%;
     text-align: center;
     vertical-align: top;
     font-weight: bold;
     font-size: 1.2rem;
     background-color: transparent;
     user-select: none;
+    outline: 1px var(--color-border) solid;
+    border-radius: 0;
+}
+
+.pane.task-todo {
+    grid-column: 1 / 2;
+    grid-row: 1 / 3;
+}
+
+.pane.task-doing {
+    grid-column: 2 / 3;
+    grid-row: 1 / 3;
+}
+
+.pane.task-done {
+    grid-column: 3 / 4;
+    grid-row: 1 / 3;
+}
+
+.pane.kpt-keep {
+    grid-column: 1 / 3;
+    grid-row: 1 / 2;
+}
+
+.pane.kpt-problem {
+    grid-column: 1 / 3;
+    grid-row: 2 / 3;
+}
+
+.pene.kpt-try {
+    grid-column: 3 / 4;
+    grid-row: 1 / 3;
 }
 
 .pane+.pane {
@@ -113,8 +137,7 @@ body {
 #container-stock {
     width: 100%;
     height: 100vh;
-    border-left: none;
-    scroll-snap-type: y mandatory;
+    scroll-snap-align: end;
 }
 
 .selection-area {
@@ -128,18 +151,17 @@ body {
     min-height: 3.6em;
     width: 28em;
     padding: .1em .3em;
-    box-shadow: 0 .2em .4em -0.3em var(--color-shadow);
+    box-shadow: 0 .2em .6em -0.3em var(--color-shadow);
     border: var(--task-border-width) solid var(--color-border);
     border-radius: .2em;
     word-wrap: break-word;
     font-size: 0.9rem;
-    transition: 
+    transition:
         top 400ms ease,
         left 400ms ease,
         background-color 150ms ease,
         color 150ms ease,
         box-shadow 100ms ease;
-    background-clip: padding-box;
     user-select: none;
     color: var(--color-text);
 }
@@ -156,7 +178,11 @@ body {
 .task a:link,
 .task a:visited,
 .task a:active {
-    color: var(--color-tel-cyan);
+    color: var(--color-text);
+}
+
+.task a:hover {
+    color: var(--color-text-blight);
 }
 
 .task hr {
@@ -221,29 +247,6 @@ body {
     max-width: 100%;
 }
 
-.display-text>comment {
-    position: absolute;
-    left: 0;
-    top: 100%;
-    font-size: 80%;
-    background-color: var(--color-comment);
-    border-radius: 0 0 .5em 0;
-    padding: .4em;
-    width: 90%;
-    box-shadow: 0 .3rem .5rem -.2rem var(--color-shadow);
-    display: block;
-    backdrop-filter: blur(5px);
-    z-index: 1;
-    opacity: 0;
-    visibility: hidden;
-    transition: .2s ease-in-out opacity .1s;
-}
-
-.task:hover comment {
-    visibility: visible;
-    opacity: 1;
-}
-
 textarea {
     width: 100%;
     resize: vertical;
@@ -274,8 +277,10 @@ textarea:focus {
 }
 
 .menu {
-    color: var(--color-menu-text);
-    background-color: var(--color-menu-background);
+    color: var(--color-text);
+    background-color: var(--color-background);
+    border-radius: .3em;
+    border: 1px solid var(--color-border);
     position: absolute;
     visibility: hidden;
     box-shadow: .1em .1em .3em -.1em rgba(0, 0, 0, 0.4);
@@ -324,7 +329,7 @@ textarea:focus {
 .menu-item>img {
     display: inline-block;
     height: 1.5em;
-    vertical-align: bottom;
+    vertical-align: middle;
     margin-right: .1em;
 }
 
@@ -392,12 +397,6 @@ textarea:focus {
     color: var(--color-text-blight);
 }
 
-@media (prefers-color-scheme: dark) {
-    .white {
-        color: hsl(0, 0%, 17%);
-    }
-}
-
 #scroll {
     bottom: 0;
     left: 0;
@@ -416,10 +415,8 @@ textarea:focus {
 }
 
 @media (prefers-color-scheme: dark) {
-    #scroll>img,
-    #license>img,
-    #status>img {
-        filter: invert(100%);
+    img.app-icon {
+        filter: invert(80%);
     }
 }
 
