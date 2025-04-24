@@ -27,10 +27,7 @@ async fn main() -> Result<()> {
     let app = route(socket_layer);
     let port = match env::var("KANBAN_PORT").map(|var| var.parse::<u16>()) {
         Ok(Ok(port)) => port,
-        _ => {
-            error!("Invalid port number. Using default port 3000.");
-            3000
-        }
+        _ => 3000,
     };
 
     let listener = tokio::net::TcpListener::bind(("0.0.0.0", port))
@@ -64,6 +61,7 @@ fn route(socket: SocketIoLayer) -> axum::Router {
 async fn render(Query(IndexQuery { readonly }): Query<IndexQuery>) -> axum::response::Response {
     let mode = Mode::read();
     let readonly = readonly.unwrap_or(false);
+    info!("Render index. mode={:?}, readonly={readonly}", &mode);
     let index = Index { mode, readonly };
     match index.render() {
         Ok(html) => axum::response::Html(html).into_response(),
@@ -86,6 +84,7 @@ struct Index {
     readonly: bool,
 }
 
+#[derive(Debug)]
 enum Mode {
     Task,
     Kpt,
@@ -94,7 +93,7 @@ enum Mode {
 impl Mode {
     fn read() -> Self {
         let env = env::var("KANBAN_MODE").unwrap_or_else(|_| "task".to_string());
-        match env.as_str() {
+        match env.to_ascii_lowercase().as_str() {
             "kpt" => Mode::Kpt,
             _ => Mode::Task,
         }

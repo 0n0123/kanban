@@ -117,21 +117,13 @@ body {
     grid-row: 2 / 3;
 }
 
-.pene.kpt-try {
+.pane.kpt-try {
     grid-column: 3 / 4;
     grid-row: 1 / 3;
 }
 
 .pane+.pane {
     border-left: 1px var(--color-tel-cyan) solid;
-}
-
-.pane:nth-child(odd) {
-    color: var(--color-tel-cyan);
-}
-
-.pane:nth-child(even) {
-    color: var(--color-tel-green);
 }
 
 #container-stock {
@@ -179,10 +171,6 @@ body {
 .task a:visited,
 .task a:active {
     color: var(--color-text);
-}
-
-.task a:hover {
-    color: var(--color-text-blight);
 }
 
 .task hr {
