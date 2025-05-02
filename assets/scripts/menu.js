@@ -1,6 +1,8 @@
 import { Emitter } from './emitter.js';
 import { Task } from './task.js';
 import { Scroll } from './scroll.js';
+import { Popup } from './status.js';
+import { Storage } from './storage.js';
 
 export const Menu = new class {
     constructor() {
@@ -12,7 +14,7 @@ export const Menu = new class {
                 key: m.dataset.key,
                 func: _ => m.click()
             }));
-        
+
         const onColorMenuClick = e => {
             const focusedTaskIds = Task.getAllFocused().map(task => task.id);
             Emitter.changeColor(focusedTaskIds, e.currentTarget.dataset.color);
@@ -53,9 +55,35 @@ export const Menu = new class {
         };
         document.getElementById('menu-move').onclick = onMoveMenuClick;
 
+        const onDuplicateMenuClick = () => {
+            const focusedTasks = Task.getAllFocused();
+            const tasks = focusedTasks.map(task => task.toObject()).map(task => ({
+                ...task,
+                id: undefined,
+                pos: {
+                    left: task.pos.left + 1,
+                    top: task.pos.top + 1
+                }
+            }));
+            Emitter.createAll(tasks);
+        };
+        document.getElementById('menu-duplicate').onclick = onDuplicateMenuClick;
+
         const onDeleteMenuClick = () => {
-            const ids = Task.getAllFocused().map(task => task.id);
+            const tasks = Task.getAllFocused();
+            const ids = tasks.map(task => task.id);
             Emitter.delete(ids);
+            Storage.store(tasks.map(task => task.toObject()));
+            Popup.show({
+                text: 'To click to restore deleted tasks within 10 seconds',
+                clickable: true,
+                autoHide: true,
+                timeout: 10000,
+                onClick: () => {
+                    Storage.restore();
+                    Popup.hide();
+                }
+            })
         };
         document.getElementById('menu-delete').onclick = onDeleteMenuClick;
     }

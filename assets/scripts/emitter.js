@@ -3,15 +3,21 @@ export const Emitter = new class {
         this.socket = socket;
     }
 
-    create(top, left) {
+    create(top, left, color = 'white', text = '') {
         this.socket.emit('create', {
             tasks: [{
                 pos: {
                     top: top,
                     left: left
-                }
+                },
+                color,
+                text,
             }]
         });
+    }
+
+    createAll(tasks) {
+        this.socket.emit('create', { tasks });
     }
 
     changeColor(ids, color) {

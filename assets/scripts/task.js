@@ -1,5 +1,6 @@
 import { Emitter } from './emitter.js';
 import { Scroll } from './scroll.js';
+import { Storage } from './storage.js';
 import { marked } from './3rd-party/marked.esm.js';
 
 const $tasks = document.getElementById('tasks');
@@ -12,12 +13,26 @@ const CLASS_COLOR = ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'purp
 export class Task {
     static #onDocumentKeyUp = null;
 
+    id;
+    elm;
+    input;
+    displayText;
+    origin;
+
+    toObject() {
+        return {
+            id: this.id,
+            pos: this.getPosition(),
+            text: this.input.value,
+            color: Array.from(this.elm.classList).find(c => CLASS_COLOR.includes(c)) || 'white',
+        };
+    }
+
     constructor(id) {
         this.id = id;
         this.elm = document.getElementById(id);
         this.input = this.elm.querySelector('textarea');
         this.displayText = this.elm.querySelector('.display-text');
-
         this.origin = {
             x: 0,
             y: 0,
@@ -127,18 +142,6 @@ export class Task {
             document.onmouseup = null;
             focused.length = 0;
         };
-
-        const hover = event => {
-            const comment = this.elm.querySelector('comment');
-            if (!comment) {
-                return;
-            }
-            const rect = this.elm.getBoundingClientRect();
-            comment.style.top = (event.clientY - rect.top) / rect.height * 100 + 1 + '%';
-            comment.style.left = (event.clientX - rect.left) / rect.width * 100 + 1 + '%';
-        };
-
-        this.elm.onmousemove = hover;
 
         this.elm.onmousedown = mousedown;
         this.elm.ondblclick = _ => this.edit();

@@ -1,20 +1,46 @@
 export const Popup = new class {
     #elm = document.getElementById('popup');
+    #timer = null;
 
+    /**
+     * @param {object | string} option
+     * @param {string} [option.text]
+     * @param {boolean} [option.clickable]
+     * @param {boolean} [option.autoHide]
+     * @param {number} [option.timeout]
+     * @param {function} [option.onClick]
+     * @returns {Promise<void>}
+     */
     show(option) {
         this.#elm.innerText = option.text ?? option;
         this.#elm.classList.add('show');
+        const promises = [];
         if (option.clickable) {
             this.#elm.classList.add('clickable');
-            return new Promise(r => this.#elm.onclick = r);
+            promises.push(new Promise(r => this.#elm.onclick = () => {
+                option.onClick?.();
+                this.hide();
+                r();
+            }));
+        } else {
+            this.#elm.onclick = null;
+            this.#elm.classList.remove('clickable');
         }
-        this.#elm.onclick = null;
-        this.#elm.classList.remove('clickable');
-        return Promise.resolve();
+        if (option.timeout) {
+            promises.push(new Promise(r => this.#timer = setTimeout(() => {
+                this.hide();
+                r();
+            }, option.timeout)));
+        }
+        return Promise.all(promises);
     }
 
     hide() {
         this.#elm.classList.remove('show');
+        if (this.#timer) {
+            clearTimeout(this.#timer);
+            this.#timer = null;
+        }
     }
 }();
 
