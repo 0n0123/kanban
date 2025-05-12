@@ -75,7 +75,7 @@ export const Menu = new class {
             Emitter.delete(ids);
             Storage.store(tasks.map(task => task.toObject()));
             Popup.show({
-                text: 'To click to restore deleted tasks within 10 seconds',
+                text: 'Click here to restore deleted tasks.',
                 clickable: true,
                 autoHide: true,
                 timeout: 10000,
