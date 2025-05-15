@@ -418,7 +418,7 @@ textarea:focus {
     user-select: none;
 }
 
-.background-icon>img {
+.background-icon img {
     display: block;
     max-width: 1.2em;
     max-height: 1.2em;
