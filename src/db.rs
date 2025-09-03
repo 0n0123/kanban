@@ -83,7 +83,7 @@ impl Db {
             .map(|_| ())
     }
 
-    pub fn update_to_fromt(&mut self, id: &str) -> Result<()> {
+    pub fn update_to_front(&mut self, id: &str) -> Result<()> {
         let tx = self.0.transaction()?;
         let task_info =
             tx.query_row("SELECT * FROM task WHERE id = ?1", [id.to_owned()], |row| {
@@ -102,7 +102,7 @@ impl Db {
         Ok(())
     }
 
-    fn prepare(&self, sql: &str) -> Result<Statement> {
+    fn prepare(&'_ self, sql: &str) -> Result<Statement<'_>> {
         self.0
             .prepare(sql)
             .map_err(|_| anyhow!("Failed to prepare statement {sql}"))

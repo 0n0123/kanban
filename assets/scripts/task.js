@@ -1,6 +1,5 @@
 import { Emitter } from './emitter.js';
 import { Scroll } from './scroll.js';
-import { Storage } from './storage.js';
 import { marked } from './3rd-party/marked.esm.js';
 
 const $tasks = document.getElementById('tasks');

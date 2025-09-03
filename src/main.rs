@@ -12,12 +12,13 @@ use socketioxide::{
     extract::{Data, SocketRef},
     layer::SocketIoLayer,
 };
-use tracing::{error, info};
+use tracing::{error, info, warn};
 use tracing_subscriber::fmt::writer::MakeWriterExt;
 
 #[tokio::main]
 async fn main() -> Result<()> {
     prepare_logger();
+
     Db::open()
         .init()
         .inspect_err(|e| error!("Failed to initialize DB. {e}"))?;
@@ -116,37 +117,29 @@ fn setup_socketio() -> SocketIoLayer {
 
     io.ns("/", |socket: SocketRef| {
         info!("Client connected. {}", socket.id);
+
         let tasks = Db::open()
             .get_all()
             .inspect_err(|e| error!("Cannot get tasks. {e}"))
             .unwrap_or_else(|_| Vec::new());
-        socket.emit("welcome", &Message::new(tasks)).ok();
 
-        socket.on("create", |s: SocketRef, Data::<Message>(mes)| {
-            create(s, mes).ok();
-        });
-        socket.on("color", |s: SocketRef, Data::<Message>(mes)| {
-            change_color(s, mes).ok();
-        });
-        socket.on("text", |s: SocketRef, Data::<Message>(mes)| {
-            edit_text(s, mes).ok();
-        });
-        socket.on("move", |s: SocketRef, Data::<Message>(mes)| {
-            move_task(s, mes).ok();
-        });
-        socket.on("delete", |s: SocketRef, Data::<Message>(mes)| {
-            delete_task(s, mes).ok();
-        });
-        socket.on("tofront", |s: SocketRef, Data::<Message>(mes)| {
-            to_front(s, mes).ok();
-        });
+        if let Err(e) = socket.emit("welcome", &Message::new(tasks)) {
+            error!("Failed to emit welcome message. {e}");
+        }
+
+        socket.on("create", create);
+        socket.on("color", change_color);
+        socket.on("text", edit_text);
+        socket.on("move", move_task);
+        socket.on("delete", delete_task);
+        socket.on("tofront", to_front);
     });
 
     layer
 }
 
 #[tracing::instrument(skip(socket))]
-fn create(socket: SocketRef, mes: Message) -> Result<()> {
+async fn create(socket: SocketRef, Data(mes): Data<Message>) {
     let mut tasks = Vec::new();
     for info in mes.tasks.iter() {
         match Db::open().create_task(info) {
@@ -158,34 +151,37 @@ fn create(socket: SocketRef, mes: Message) -> Result<()> {
         };
     }
     let mes = Message::new(tasks);
-    socket.broadcast().emit("create", &mes)?;
-    socket.emit("create", &mes)?;
-    Ok(())
+    if let Err(e) = socket.broadcast().emit("create", &mes).await {
+        warn!("Failed to broadcast create message. {e}");
+    }
+    if let Err(e) = socket.emit("create", &mes) {
+        warn!("Failed to emit create message. {e}");
+    }
 }
 
 #[tracing::instrument(skip(socket))]
-fn change_color(socket: SocketRef, mes: Message) -> Result<()> {
-    update_tasks(socket, mes, ColorChanger)
+async fn change_color(socket: SocketRef, Data(mes): Data<Message>) {
+    update_tasks(socket, mes, ColorChanger).await;
 }
 
 #[tracing::instrument(skip(socket))]
-fn edit_text(socket: SocketRef, mes: Message) -> Result<()> {
-    update_tasks(socket, mes, TextEditor)
+async fn edit_text(socket: SocketRef, Data(mes): Data<Message>) {
+    update_tasks(socket, mes, TextEditor).await;
 }
 
 #[tracing::instrument(skip(socket))]
-fn move_task(socket: SocketRef, mes: Message) -> Result<()> {
-    update_tasks(socket, mes, PosMover)
+async fn move_task(socket: SocketRef, Data(mes): Data<Message>) {
+    update_tasks(socket, mes, PosMover).await;
 }
 
 #[tracing::instrument(skip(socket))]
-fn delete_task(socket: SocketRef, mes: Message) -> Result<()> {
-    update_tasks(socket, mes, TaskDeleter)
+async fn delete_task(socket: SocketRef, Data(mes): Data<Message>) {
+    update_tasks(socket, mes, TaskDeleter).await;
 }
 
 #[tracing::instrument(skip(socket))]
-fn to_front(socket: SocketRef, mes: Message) -> Result<()> {
-    update_tasks(socket, mes, TaskRaiser)
+async fn to_front(socket: SocketRef, Data(mes): Data<Message>) {
+    update_tasks(socket, mes, TaskRaiser).await;
 }
 
 trait TaskUpdater {
@@ -247,7 +243,7 @@ impl TaskUpdater for TaskDeleter {
 struct TaskRaiser;
 impl TaskUpdater for TaskRaiser {
     fn update(&self, info: &TaskInfo) -> Result<()> {
-        Db::open().update_to_fromt(&info.get_id())
+        Db::open().update_to_front(&info.get_id())
     }
 
     fn get_event(&self) -> &'static str {
@@ -255,7 +251,7 @@ impl TaskUpdater for TaskRaiser {
     }
 }
 
-fn update_tasks(socket: SocketRef, mes: Message, updater: impl TaskUpdater) -> Result<()> {
+async fn update_tasks(socket: SocketRef, mes: Message, updater: impl TaskUpdater) {
     let mut tasks = Vec::new();
     for info in mes.tasks.iter() {
         if updater.update(info).is_ok() {
@@ -267,8 +263,11 @@ fn update_tasks(socket: SocketRef, mes: Message, updater: impl TaskUpdater) -> R
 
     let mes = Message::new(tasks);
     let event = updater.get_event();
-    socket.broadcast().emit(event, &mes)?;
-    socket.emit(event, &mes)?;
 
-    Ok(())
+    if let Err(e) = socket.broadcast().emit(event, &mes).await {
+        warn!("Failed to broadcast {event} message. {e}");
+    }
+    if let Err(e) = socket.emit(event, &mes) {
+        warn!("Failed to emit {event} message. {e}");
+    }
 }
