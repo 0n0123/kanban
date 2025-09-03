@@ -2,6 +2,7 @@ import { Emitter } from './emitter.js';
 import { Popup, Status } from './status.js';
 import { io } from './3rd-party/socket.io.esm.min.js';
 import { marked } from './3rd-party/marked.esm.js';
+import { Scroll } from './scroll.js';
 
 const socket = io();
 Emitter.init(socket);
