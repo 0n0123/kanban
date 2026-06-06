@@ -115,7 +115,7 @@ impl Message {
 fn setup_socketio() -> SocketIoLayer {
     let (layer, io) = SocketIo::builder().build_layer();
 
-    io.ns("/", |socket: SocketRef| {
+    io.ns("/", async |socket: SocketRef| {
         info!("Client connected. {}", socket.id);
 
         let tasks = Db::open()

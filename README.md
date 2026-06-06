@@ -22,6 +22,12 @@ Kanban is designed to help remote teams collaborate effectively by sharing tasks
     | `KANBAN_PORT`         | The port on which the server runs. | `3000`        |
     | `KANBAN_MODE`         | The mode in which the app runs (`task` or `kpt`). | `task` |
 
+1. Run frontend build with Deno:
+
+    ```bash
+    deno task build
+    ```
+
 1. Run the app with `cargo run` or pre-built binary with `cargo build --locked --release`
 
 1. Access `http://server:port`
@@ -52,7 +58,7 @@ Kanban is built using modern and efficient technologies:
 - **Rust**: The core of the application is written in Rust, providing safety, speed, and reliability.
 - **Axum**: A web framework for building robust and scalable HTTP services, used for handling server-side logic.
 - **Askama**: A templating engine for Rust, used to render HTML templates efficiently.
-- **Vanilla JavaScript**: The frontend is built with plain JavaScript for simplicity and flexibility.
+- **Vanilla TypeScript**: The frontend is built with plain TypeScript and bundled with Rolldown.
 - **Socket.IO**: Enables real-time communication between the server and clients, ensuring instant updates to the Kanban board.
 - **SQLite**: A lightweight and self-contained database used to store tasks and application data.
 

@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "lib": ["dom", "dom.iterable", "es2022"],
+    "strict": true,
+    "module": "esnext"
+  },
+  "tasks": {
+    "build": "deno run --allow-read --allow-write build.ts '--allow-env' '--allow-ffi'"
+  }
+}

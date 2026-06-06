@@ -1,5 +1,7 @@
 /logs
 /target
+/assets/scripts
 database.sqlite
+deno.lock
 .DS_Store
 /**/.DS_Store
