@@ -8,6 +8,7 @@ type TaskOption = {
   text?: string;
   color?: string;
   menu?: (e: MouseEvent) => void;
+  readonly?: boolean;
 };
 
 type TaskPosition = {
@@ -15,10 +16,7 @@ type TaskPosition = {
   top: number;
 };
 
-const $tasks = document.getElementById('tasks');
-if (!$tasks) {
-  throw new Error('Could not find #tasks element.');
-}
+const $tasks = document.getElementById('tasks')!;
 
 const CLASS_TASK = 'task';
 const CLASS_FOCUSED = 'focused';
@@ -31,7 +29,7 @@ export class Task {
 
   id: string;
   elm: HTMLElement;
-  input: HTMLTextAreaElement;
+  input: HTMLTextAreaElement | null;
   displayText: HTMLElement;
   origin: {
     x: number;
@@ -48,9 +46,6 @@ export class Task {
     this.elm = elm;
     const input = this.elm.querySelector('textarea');
     const displayText = this.elm.querySelector('.display-text');
-    if (!input || !(input instanceof HTMLTextAreaElement)) {
-      throw new Error(`Task textarea not found for ${id}`);
-    }
     if (!displayText || !(displayText instanceof HTMLElement)) {
       throw new Error(`Task display text element not found for ${id}`);
     }
@@ -64,7 +59,7 @@ export class Task {
   }
 
   static create(id: string, option: TaskOption): Task {
-    const { top = 0, left = 0, text = '', color = '', menu } = option;
+    const { top = 0, left = 0, text = '', color = '', menu, readonly = false } = option;
     const txt = text || '';
     const col = color || 'white';
     const newTask = document.createElement('div');
@@ -79,14 +74,20 @@ export class Task {
     displayText.innerHTML = marked.parse(txt);
     newTask.appendChild(displayText);
 
-    const textarea = document.createElement('textarea');
-    textarea.placeholder = 'Press Ctrl+Enter or Ctrl+Alt+Enter to start a new line.';
-    textarea.value = txt;
-    newTask.appendChild(textarea);
+    if (!readonly) {
+      const textarea = document.createElement('textarea');
+      textarea.placeholder = 'Press Ctrl+Enter or Ctrl+Alt+Enter to start a new line.';
+      textarea.value = txt;
+      newTask.appendChild(textarea);
+    }
 
     $tasks.appendChild(newTask);
     const instance = new Task(id);
-    instance.#registerEventListener();
+    
+    if (!readonly) {
+      instance.#registerEventListener();
+    }
+
     if (menu) {
       newTask.oncontextmenu = e => {
         e.preventDefault();
@@ -100,7 +101,7 @@ export class Task {
     return {
       id: this.id,
       pos: this.getPosition(),
-      text: this.input.value,
+      text: this.input?.value || '',
       color: Array.from(this.elm.classList).find(c => CLASS_COLOR.includes(c)) || 'white',
     };
   }
@@ -176,15 +177,18 @@ export class Task {
     this.elm.onmousedown = mousedown;
     this.elm.ondblclick = () => this.edit();
 
+    if (!this.input) {
+      return;
+    }
     this.input.onkeydown = event => {
       if (event.code === 'Tab') {
         applyText();
         event.preventDefault();
       } else if (event.ctrlKey && event.code === 'Enter') {
         const br = event.altKey ? '<br>\n' : '  \n';
-        const cursor = this.input.selectionEnd;
-        this.input.value = this.input.value.substring(0, cursor) + br + this.input.value.substring(cursor);
-        this.input.selectionEnd = cursor + br.length;
+        const cursor = this.input!.selectionEnd;
+        this.input!.value = this.input!.value.substring(0, cursor) + br + this.input!.value.substring(cursor);
+        this.input!.selectionEnd = cursor + br.length;
         event.preventDefault();
       }
       event.stopPropagation();
@@ -203,7 +207,7 @@ export class Task {
     this.input.onblur = () => applyText();
 
     const applyText = () => {
-      Emitter.editText(this.id, this.input.value);
+      Emitter.editText(this.id, this.input!.value);
       document.onkeyup = Task.#onDocumentKeyUp;
       this.elm.onmousedown = mousedown;
     };
@@ -212,12 +216,12 @@ export class Task {
   edit() {
     if (!this.elm.classList.contains(CLASS_EDITING)) {
       Task.#onDocumentKeyUp = document.onkeyup;
-      this.input.dataset.originalValue = this.input.value;
-      this.input.style.height = this.elm.getBoundingClientRect().height + 'px';
+      this.input!.dataset.originalValue = this.input!.value;
+      this.input!.style.height = this.elm.getBoundingClientRect().height + 'px';
       document.onkeyup = null;
       this.elm.onmousedown = null;
       this.elm.classList.add(CLASS_EDITING);
-      this.input.focus();
+      this.input!.focus();
     }
   }
 
@@ -229,7 +233,7 @@ export class Task {
   setText(text: string) {
     this.elm.classList.remove(CLASS_EDITING);
     this.displayText.innerHTML = marked.parse(text);
-    this.input.value = text;
+    this.input && (this.input.value = text);
   }
 
   getPosition(): TaskPosition {

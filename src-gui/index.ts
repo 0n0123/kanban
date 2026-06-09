@@ -27,6 +27,7 @@ socket.on('welcome', ({ tasks }: { tasks: Array<{ id: string; pos: { top: number
       left: task.pos.left,
       text: task.text,
       color: task.color,
+      readonly: true,
     });
   }
 });
@@ -70,6 +71,7 @@ socket.on('create', ({ tasks }: { tasks: Array<{ id: string; pos: { top: number;
       left: pos.left,
       text,
       color,
+      readonly: true,
     });
   }
 });
