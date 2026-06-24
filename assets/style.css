@@ -245,6 +245,8 @@ textarea {
     border: none;
     border-radius: .2em;
     padding: 0 .2em;
+    min-height: 100%;
+    field-sizing: content; 
 }
 
 textarea::placeholder {
@@ -254,6 +256,10 @@ textarea::placeholder {
 
 textarea:focus {
     outline: none;
+}
+
+.task.editing {
+    z-index: 1;
 }
 
 .task.editing>textarea {
@@ -314,7 +320,7 @@ textarea:focus {
     overflow: hidden;
 }
 
-.menu-item>img {
+.menu-item>svg {
     display: inline-block;
     height: 1.5em;
     vertical-align: middle;
@@ -402,12 +408,6 @@ textarea:focus {
     cursor: pointer;
 }
 
-@media (prefers-color-scheme: dark) {
-    img.app-icon {
-        filter: invert(80%);
-    }
-}
-
 #status {
     bottom: 0;
     right: 0;
@@ -418,7 +418,7 @@ textarea:focus {
     user-select: none;
 }
 
-.background-icon img {
+.background-icon svg {
     display: block;
     max-width: 1.2em;
     max-height: 1.2em;

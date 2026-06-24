@@ -34,15 +34,41 @@
         <div id="container-stock"></div>
     </div>
     <div id="status" class="background-icon">
-        <img class="app-icon" id="status-online" src="./assets/img/online.svg" title="Online" />
-        <img class="app-icon" id="status-offline" src="./assets/img/offline.svg" class="hidden" title="Offline" />
+        <svg xmlns="http://www.w3.org/2000/svg" id="status-online" title="Online" class="app-icon icon icon-tabler icon-tabler-wifi" width="24" height="24"
+            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <line x1="12" y1="18" x2="12.01" y2="18" />
+            <path d="M9.172 15.172a4 4 0 0 1 5.656 0" />
+            <path d="M6.343 12.343a8 8 0 0 1 11.314 0" />
+            <path d="M3.515 9.515c4.686 -4.687 12.284 -4.687 17 0" />
+        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" id="status-offline" title="Offline" class="app-icon hidden icon icon-tabler icon-tabler-wifi-off" width="24" height="24"
+            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <line x1="12" y1="18" x2="12.01" y2="18" />
+            <path d="M9.172 15.172a4 4 0 0 1 5.656 0" />
+            <path d="M6.343 12.343a7.963 7.963 0 0 1 3.864 -2.14m4.163 .155a7.965 7.965 0 0 1 3.287 2" />
+            <path d="M3.515 9.515a12 12 0 0 1 3.544 -2.455m3.101 -.92a12 12 0 0 1 10.325 3.374" />
+            <line x1="3" y1="3" x2="21" y2="21" />
+        </svg>
     </div>
     <div id="scroll" class="background-icon">
-        <img class="app-icon" src="./assets/img/arrow.svg" alt="v">
+        <svg xmlns="http://www.w3.org/2000/svg" class="app-icon icon icon-tabler icon-tabler-chevrons-down" width="24" height="24"
+            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <polyline points="7 7 12 12 17 7" />
+            <polyline points="7 13 12 18 17 13" />
+        </svg>
     </div>
     <div id="license" class="background-icon">
         <a href="./assets/LICENSES.md" target="_blank">
-            <img class="app-icon" src="./assets/img/licenses.svg" alt="" title="3rd Party Licenses">
+            <svg xmlns="http://www.w3.org/2000/svg" title="3rd Party Licenses" class="app-icon icon icon-tabler icon-tabler-license" width="24" height="24"
+                viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <path d="M15 21h-9a3 3 0 0 1 -3 -3v-1h10v2a2 2 0 0 0 4 0v-14a2 2 0 1 1 2 2h-2m2 -4h-11a3 3 0 0 0 -3 3v11" />
+                <line x1="9" y1="7" x2="13" y2="7" />
+                <line x1="9" y1="11" x2="13" y2="11" />
+            </svg>
         </a>
     </div>
     <div id="tasks"></div>
@@ -59,16 +85,49 @@
             <div class="menu-color black" data-color="black" data-key="Digit9">9</div>
         </li>
         <li id="menu-tofront" class="menu-item" data-key="KeyZ">
-            <img class="app-icon" src="./assets/img/tofront.svg" alt="">To Front<span class="key-bind">Z</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="app-icon icon icon-tabler icon-tabler-layers-intersect-2" width="24" height="24"
+                viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <rect x="8" y="4" width="12" height="12" rx="2" />
+                <rect x="4" y="8" width="12" height="12" rx="2" />
+                <path d="M9 15l6 -6" />
+            </svg>
+            To Front<span class="key-bind">Z</span>
         </li>
         <li id="menu-move" class="menu-item" data-key="KeyN">
-            <img class="app-icon" src="./assets/img/updown.svg" alt="">Move<span class="key-bind">N</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="app-icon icon icon-tabler icon-tabler-arrows-down-up" width="24" height="24"
+                viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <line x1="17" y1="3" x2="17" y2="21" />
+                <path d="M10 18l-3 3l-3 -3" />
+                <line x1="7" y1="21" x2="7" y2="3" />
+                <path d="M20 6l-3 -3l-3 3" />
+            </svg>
+            Move<span class="key-bind">N</span>
         </li>
         <li id="menu-duplicate" class="menu-item" data-key="KeyD">
-            <img class="app-icon" src="./assets/img/duplicate.svg" alt="">Duplicate<span class="key-bind">D</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="app-icon icon icon-tabler icons-tabler-outline icon-tabler-copy-plus" width="24" height="24"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <path stroke="none" d="M0 0h24v24H0z" />
+                <path d="M7 9.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667z" />
+                <path d="M4.012 16.737a2 2 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1" />
+                <path d="M11 14h6" />
+                <path d="M14 11v6" />
+            </svg>
+            Duplicate<span class="key-bind">D</span>
         </li>
         <li id="menu-delete" class="menu-item" data-key="Delete">
-            <img class="app-icon" src="./assets/img/delete.svg" alt="">Delete<span class="key-bind">Del</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="app-icon icon icon-tabler icon-tabler-trash" width="24" height="24"
+                viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <line x1="4" y1="7" x2="20" y2="7" />
+                <line x1="10" y1="11" x2="10" y2="17" />
+                <line x1="14" y1="11" x2="14" y2="17" />
+                <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+                <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+            </svg>
+            Delete<span class="key-bind">Del</span>
         </li>
     </ul>
     <div id="popup"></div>

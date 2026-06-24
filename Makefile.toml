@@ -5,3 +5,13 @@ args = ["task", "build"]
 [tasks.build]
 command = "cargo"
 args = ["build", "--release"]
+
+[tasks.serve]
+command = "cargo"
+args = ["run"]
+
+[tasks.dev]
+dependencies = [
+    "bundle",
+    "serve",
+]
