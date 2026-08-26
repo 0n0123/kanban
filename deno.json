@@ -4,7 +4,13 @@
     "strict": true,
     "module": "esnext"
   },
+  "nodeModulesDir": "auto",
   "tasks": {
     "build": "deno run --allow-read --allow-write build.ts '--allow-env' '--allow-ffi'"
+  },
+  "imports": {
+    "@viselect/vanilla": "npm:@viselect/vanilla@3.9.0",
+    "marked": "npm:marked@18.0.11",
+    "socket.io-client": "npm:socket.io-client@4.8.3"
   }
 }

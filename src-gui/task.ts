@@ -1,6 +1,6 @@
 import { Emitter } from './emitter.ts';
 import { Scroll } from './scroll.ts';
-import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
+import { marked } from 'marked';
 
 type TaskOption = {
   top?: number;
@@ -71,7 +71,7 @@ export class Task {
 
     const displayText = document.createElement('div');
     displayText.className = 'display-text';
-    displayText.innerHTML = marked.parse(txt);
+    displayText.innerHTML = marked.parse(txt, { async: false });
     newTask.appendChild(displayText);
 
     if (!readonly) {
@@ -232,7 +232,7 @@ export class Task {
 
   setText(text: string) {
     this.elm.classList.remove(CLASS_EDITING);
-    this.displayText.innerHTML = marked.parse(text);
+    this.displayText.innerHTML = marked.parse(text, { async: false });
     this.input && (this.input.value = text);
   }
 

@@ -1,10 +1,11 @@
 import { Emitter } from './emitter.ts';
 import { Popup, Status } from './status.ts';
 import { Task } from './task.ts';
-import { io } from 'https://cdn.socket.io/4.8.3/socket.io.esm.min.js';
+import { io } from 'socket.io-client';
 
 const socket = (() => {
   const url = new URL(window.location.href);
+  url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
   return io(url.origin + url.pathname);
 })();
 Emitter.init(socket);

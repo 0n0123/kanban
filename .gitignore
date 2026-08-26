@@ -1,6 +1,8 @@
 /logs
 /target
 /assets/scripts
+/certs
+/node_modules
 database.sqlite
 deno.lock
 .DS_Store

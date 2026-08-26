@@ -2,8 +2,8 @@ import { Emitter } from './emitter.ts';
 import { Popup, Status } from './status.ts';
 import { Task } from './task.ts';
 import { Menu } from './menu.ts';
-import { io } from 'https://cdn.socket.io/4.8.3/socket.io.esm.min.js';
-import SelectionArea from 'https://cdn.jsdelivr.net/npm/@viselect/vanilla/dist/viselect.mjs';
+import { io } from 'socket.io-client';
+import SelectionArea from '@viselect/vanilla';
 
 type SelectionAreaInstance = {
   on(event: string, handler: (event: unknown) => unknown): SelectionAreaInstance;
@@ -17,6 +17,7 @@ type SelectionAreaConstructor = new (options: {
 
 const socket = (() => {
   const url = new URL(window.location.href);
+  url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
   return io(url.origin + url.pathname);
 })();
 Emitter.init(socket);

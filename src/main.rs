@@ -1,6 +1,9 @@
 mod db;
 
-use std::env;
+use std::{
+    env,
+    path::PathBuf,
+};
 
 use anyhow::{Result, anyhow};
 use askama::Template;
@@ -31,21 +34,34 @@ async fn main() -> Result<()> {
         _ => 3000,
     };
 
-    let listener = tokio::net::TcpListener::bind(("0.0.0.0", port))
-        .await
-        .map_err(|_| anyhow!("Failed to bind port {port}."))?;
-
+    let addr = std::net::SocketAddr::from(([0, 0, 0, 0], port));
     info!("Listening on port {port}");
 
-    axum::serve(listener, app)
-        .await
-        .map_err(|_| anyhow!("Failed to start up server."))
+    let cert_path = env::var("KANBAN_CERT").ok().map(PathBuf::from).filter(|p| p.exists());
+    let key_path = env::var("KANBAN_KEY").ok().map(PathBuf::from).filter(|p| p.exists());
+
+    match (cert_path, key_path) {
+        (Some(cert), Some(key)) => {
+            info!("Using TLS with cert: {:?}, key: {:?}", &cert, &key);
+            let rustls_config =
+                axum_server::tls_rustls::RustlsConfig::from_pem_file(&cert, &key).await?;
+            axum_server::bind_rustls(addr, rustls_config)
+                .serve(app.into_make_service())
+                .await
+        }
+        _ => {
+            info!("Not using TLS.");
+            axum_server::bind(addr).serve(app.into_make_service()).await
+        }
+    }
+    .map_err(|_| anyhow!("Failed to start up server."))
 }
 
 fn prepare_logger() {
     let file_appender = tracing_appender::rolling::daily("./logs", "server.log");
     let stdout = std::io::stdout.with_max_level(tracing::Level::INFO);
     tracing_subscriber::fmt()
+        .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
         .with_thread_names(true)
         .json()
         .with_writer(stdout.and(file_appender))
